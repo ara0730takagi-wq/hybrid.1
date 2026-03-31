@@ -190,3 +190,4 @@ def plot_repetition_rate_vs_distance():
 
 if __name__ == "__main__":
     plot_repetition_rate_vs_distance()
+    print("complete")
