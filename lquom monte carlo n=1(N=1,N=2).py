@@ -4,33 +4,23 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import matplotlib.animation as animation
-def trial_timeline1(p_EL, p_QST, rng=None):
+def trial_timeline1(p_EL,p_EC, p_QST, rng=None):
     
     if rng is None:
         rng = np.random.default_rng()
 
-    tl = {"t0": {}, "t_quarter": {}, "t_half": {}, "t_full": {}}
+    tl = {"t0": {}, "t_half": {}, "t_full": {}}
 
     # t = 0 : EPPS 発射（ニュートラル）
     tl["t0"]["EPPS_fired"] = True
 
-    # t = t_AFC/4 : EL 内 BSM で成功/失敗決定（乱数 p_EL）
+    # t = t_AFC/2 : EL 内 BSM で成功/失敗決定（乱数 p_EL）
     EL_success = (rng.random() < p_EL)
-    tl["t_quarter"]["EL_success"] = EL_success
-
-
-    # QST1_1 は EL1_1 から, QST1_2 は EL1_2 から
-    QST1_msg_from_EL = EL_success
-    QST2_msg_from_EL = EL_success
-    tl["t_half"]["QST1_msg_from_EL"] = QST1_msg_from_EL
-    tl["t_half"]["QST2_msg_from_EL"] = QST2_msg_from_EL
-
-    # EL の状態も t_half にコピー
     tl["t_half"]["EL_success"] = EL_success
 
     # t = t_AFC : 反対側の QST にもヘラルドが届く
-    QST1_msg_from_EL2 = EL_success  # EL → QST1
-    QST2_msg_from_EL1 = EL_success  # EL → QST2
+    QST1_msg_from_EL = EL_success  # EL → QST1
+    QST2_msg_from_EL = EL_success  # EL → QST2
     tl["t_full"]["QST1_msg_from_EL"] = QST1_msg_from_EL
     tl["t_full"]["QST2_msg_from_EL"] = QST2_msg_from_EL
 
@@ -60,6 +50,7 @@ def trial_timeline1(p_EL, p_QST, rng=None):
     tl["t_full"]["ARC_success"] = ARC_success
 
     return tl,ARC_success
+"""
 #N=2,n=1のとき
 def trial_timeline2(p_EL, p_QST, rng=None):
     
@@ -72,30 +63,43 @@ def trial_timeline2(p_EL, p_QST, rng=None):
     tl["t0"]["EPPS_fired"] = True
 
     # t = t_AFC/4 : EL 内 BSM で成功/失敗決定（乱数 p_EL）
-    EL_success = (rng.random() < p_EL)
-    tl["t_quarter"]["EL_success"] = EL_success
-
-
+    EL1_success = (rng.random() < p_EL)
+    EL2_success = (rng.random() < p_EL)
+    tl["t_quarter"]["EL1_success"] = EL1_success
+    tl["t_quarter"]["EL2_success"] = EL2_success
     # QST1_1 は EL1_1 から, QST1_2 は EL1_2 から
-    QST1_msg_from_EL = EL_success
-    QST2_msg_from_EL = EL_success
-    tl["t_half"]["QST1_msg_from_EL"] = QST1_msg_from_EL
-    tl["t_half"]["QST2_msg_from_EL"] = QST2_msg_from_EL
+    QST1_1_msg_from_EL = EL1_success
+    QST1_2_msg_from_EL = EL1_success
 
+    QST2_1_msg_from_EL = EL2_success
+    QST2_2_msg_from_EL = EL2_success
+    tl["t_half"]["QST1_1_msg_from_EL"] = QST1_1_msg_from_EL
+    tl["t_half"]["QST1_2_msg_from_EL"] = QST1_2_msg_from_EL
+
+    tl["t_half"]["QST2_1_msg_from_EL"] = QST2_1_msg_from_EL
+    tl["t_half"]["QST2_2_msg_from_EL"] = QST2_2_msg_from_EL
     # EL の状態も t_half にコピー
-    tl["t_half"]["EL_success"] = EL_success
+    tl["t_half"]["EL1_success"] = EL1_success
+    tl["t_half"]["EL2_success"] = EL2_success
 
     # t = t_AFC : 反対側の QST にもヘラルドが届く
-    QST1_msg_from_EL2 = EL_success  # EL → QST1
-    QST2_msg_from_EL1 = EL_success  # EL → QST2
-    tl["t_full"]["QST1_msg_from_EL"] = QST1_msg_from_EL
-    tl["t_full"]["QST2_msg_from_EL"] = QST2_msg_from_EL
+    QST1_1_msg_from_EL = EL1_success  # EL → QST1_1
+    QST1_2_msg_from_EL = EL1_success  # EL → QST1_2
 
+    QST2_1_msg_from_EL = EL2_success
+    QST2_2_msg_from_EL = EL2_success
+    tl["t_full"]["QST1_1_msg_from_EL"] = QST1_1_msg_from_EL
+    tl["t_full"]["QST1_2_msg_from_EL"] = QST1_2_msg_from_EL
+
+    tl["t_full"]["QST2_1_msg_from_EL"] = QST2_1_msg_from_EL
+    tl["t_full"]["QST2_2_msg_from_EL"] = QST2_2_msg_from_EL
     # 便利のため色々コピー
-    tl["t_full"]["EL1_success"] = EL_success
-    tl["t_full"]["EL2_success"] = EL_success
-    tl["t_full"]["QST1_msg_from_EL1"] = QST1_msg_from_EL
-    tl["t_full"]["QST2_msg_from_EL2"] = QST2_msg_from_EL
+    tl["t_full"]["EL1_success"] = EL1_success
+    tl["t_full"]["EL2_success"] = EL2_success
+    tl["t_full"]["QST1_1_msg_from_EL"] = QST1_1_msg_from_EL
+    tl["t_full"]["QST1_2_msg_from_EL"] = QST1_2_msg_from_EL
+    tl["t_full"]["QST2_1_msg_from_EL"] = QST2_1_msg_from_EL
+    tl["t_full"]["QST2_2_msg_from_EL"] = QST2_2_msg_from_EL
 
     # QST 判定条件：
     #   両 EL のヘラルド成功 & EC 成功 のときだけ判定
@@ -117,6 +121,7 @@ def trial_timeline2(p_EL, p_QST, rng=None):
     tl["t_full"]["ARC_success"] = ARC_success
 
     return tl,ARC_success
+"""
 def main():
     """
     This python script calculates the minimum rate of entanglement distribution between two QRs connected by N ARC chains, each chain composed of
@@ -566,7 +571,7 @@ def main():
         p=successes/N
         error=np.sqrt(p*(1.0-p)/N) 
         print(f'p(N=1,n=1)={p:.6f},error(N=1,n=1)={error:.6f}')
-
+        """
         print("===Monte Carlo check for n=1,N=2===")
         rng=np.random.default_rng(0)
         
@@ -582,6 +587,7 @@ def main():
         p=successes/N
         error=np.sqrt(p*(1.0-p)/N) 
         print(f'p(N=1,n=1)={p:.6f},error(N=1,n=1)={error:.6f}')
+        """
         #===================================================================#
         #n_attemps=round(np.log(1-edr_11*tauARC_11)/np.log(1-qr_entanglement_distribution_prob_11))
         #n_attemps=round(np.log(0.05)/np.log(1-qr_entanglement_distribution_prob_11))
