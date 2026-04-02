@@ -34,8 +34,8 @@ def trial_timeline1(p_EL,p_EC, p_QST, rng=None):
     #   両 EL のヘラルド成功 & EC 成功 のときだけ判定
     pre_QST = EL_success 
     tl["t_full"]["QST_judged"] = pre_QST
-
-    if pre_QST:
+    # QST duration time t_QST
+    if pre_QST==True:
         QST1_success = (rng.random() < p_QST)
         QST2_success = (rng.random() < p_QST)
     else:
@@ -45,7 +45,7 @@ def trial_timeline1(p_EL,p_EC, p_QST, rng=None):
     tl["t_full"]["QST1_success"] = QST1_success
     tl["t_full"]["QST2_success"] = QST2_success
 
-    # ARC 全体の成功：QST1, QST2 両方成功
+    # ARC 全体の成功：QST1, QST2 両方成功,合計時間t_AFC+t_QST
     ARC_success = pre_QST and QST1_success and QST2_success
     tl["t_full"]["ARC_success"] = ARC_success
 
@@ -561,7 +561,7 @@ def main():
         
         successes=0
         tAFC=param_dict["t_AFC"]
-        n_attempts=10000
+        n_attempts=9091#1ラウンドでのARCの成功時間t_AFCだけかと思って10000回にしていたけど、QST duration time があるから　t_AFC+t_QSTより 9091回
         N=5000
         for j in tqdm(range(N)):
             for i in range(n_attempts):#1s=100μs(t_AFC)*10000,論文では取りあえず10000回
@@ -570,7 +570,10 @@ def main():
                     successes +=1      
         p=successes/N
         error=np.sqrt(p*(1.0-p)/N) 
-        print(f'p(N=1,n=1)={p:.6f},error(N=1,n=1)={error:.6f}')
+
+        exv1=9091*p_arc_gen*(eta_QR)**2
+        exv2=9091*(p_arc_gen*(eta_QR)**2)**2
+        print(f'p(N=1,n=1)={p:.6f},error(N=1,n=1)={error:.6f},expected value(N=1,n=1)={exv1:.6f},expected value(N=2,n=1)={exv2:.6f}')
         """
         print("===Monte Carlo check for n=1,N=2===")
         rng=np.random.default_rng(0)

@@ -117,7 +117,8 @@ def expected_trials_until_all_links_ready_appendix_d(num_links: int, p_link: flo
         return np.inf
     if p_link >= 1.0:
         return 1.0
-
+    nattempts=9091
+    p_EL1=1-(1-p_link)**nattempts
     s = 0.0
     for j in range(1, num_links + 1):
         denom = 1.0 - (1.0 - p_link) ** j
@@ -138,7 +139,7 @@ def t_round_arc(params: LQUOMExpectedTimeParams) -> float:
     If your LQUOM-only code uses another exact t_gen expression,
     replace only this function.
     """
-    return params.t_QST + params.t_AFC + params.t_CNOT
+    return params.t_QST + params.t_AFC 
 
 
 def t_merge_arc_r(params: LQUOMExpectedTimeParams) -> float:
@@ -149,7 +150,7 @@ def t_merge_arc_r(params: LQUOMExpectedTimeParams) -> float:
     Since total distance is N*l for n=1 blue-box case, use that.
     """
     total_distance_km = params.N * params.l_km
-    return params.t_CNOT + total_distance_km / params.c_fiber
+    return params.t_CNOT #+ total_distance_km / params.c_fiber
 
 
 def expected_time_all_arcs_ready(params: LQUOMExpectedTimeParams) -> float:
