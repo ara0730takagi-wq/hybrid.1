@@ -4,6 +4,7 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import matplotlib.animation as animation
+#N=1,n=1のとき
 def trial_timeline1(p_EL,p_EC, p_QST, rng=None):
     
     if rng is None:
@@ -50,14 +51,14 @@ def trial_timeline1(p_EL,p_EC, p_QST, rng=None):
     tl["t_full"]["ARC_success"] = ARC_success
 
     return tl,ARC_success
-"""
+
 #N=2,n=1のとき
-def trial_timeline2(p_EL, p_QST, rng=None):
+def trial_timeline2(p_EL,p_EC, p_QST, rng=None):
     
     if rng is None:
         rng = np.random.default_rng()
 
-    tl = {"t0": {}, "t_quarter": {}, "t_half": {}, "t_full": {}}
+    tl = {"t0": {}, "t_half": {}, "t_full": {}}
 
     # t = 0 : EPPS 発射（ニュートラル）
     tl["t0"]["EPPS_fired"] = True
@@ -65,20 +66,7 @@ def trial_timeline2(p_EL, p_QST, rng=None):
     # t = t_AFC/4 : EL 内 BSM で成功/失敗決定（乱数 p_EL）
     EL1_success = (rng.random() < p_EL)
     EL2_success = (rng.random() < p_EL)
-    tl["t_quarter"]["EL1_success"] = EL1_success
-    tl["t_quarter"]["EL2_success"] = EL2_success
-    # QST1_1 は EL1_1 から, QST1_2 は EL1_2 から
-    QST1_1_msg_from_EL = EL1_success
-    QST1_2_msg_from_EL = EL1_success
 
-    QST2_1_msg_from_EL = EL2_success
-    QST2_2_msg_from_EL = EL2_success
-    tl["t_half"]["QST1_1_msg_from_EL"] = QST1_1_msg_from_EL
-    tl["t_half"]["QST1_2_msg_from_EL"] = QST1_2_msg_from_EL
-
-    tl["t_half"]["QST2_1_msg_from_EL"] = QST2_1_msg_from_EL
-    tl["t_half"]["QST2_2_msg_from_EL"] = QST2_2_msg_from_EL
-    # EL の状態も t_half にコピー
     tl["t_half"]["EL1_success"] = EL1_success
     tl["t_half"]["EL2_success"] = EL2_success
 
@@ -103,25 +91,34 @@ def trial_timeline2(p_EL, p_QST, rng=None):
 
     # QST 判定条件：
     #   両 EL のヘラルド成功 & EC 成功 のときだけ判定
-    pre_QST = EL_success 
-    tl["t_full"]["QST_judged"] = pre_QST
+    pre1_QST = EL1_success
+    pre2_QST = EL2_success 
+    tl["t_full"]["QST_judged"] = pre1_QST
+    tl["t_full"]["QST_judged"] = pre2_QST
 
-    if pre_QST:
-        QST1_success = (rng.random() < p_QST)
-        QST2_success = (rng.random() < p_QST)
+    if pre1_QST==True:
+        QST1_1_success = (rng.random() < p_QST)
+        QST1_2_success = (rng.random() < p_QST)
     else:
-        QST1_success = False
-        QST2_success = False
-
-    tl["t_full"]["QST1_success"] = QST1_success
-    tl["t_full"]["QST2_success"] = QST2_success
+        QST1_1_success = False
+        QST1_2_success = False
+    tl["t_full"]["QST1_1_success"] = QST1_1_success
+    tl["t_full"]["QST1_2_success"] = QST1_2_success
+    if pre2_QST==True:
+        QST2_1_success = (rng.random() < p_QST)
+        QST2_2_success = (rng.random() < p_QST)
+    else:
+        QST2_1_success = False
+        QST2_2_success = False    
+    tl["t_full"]["QST2_1_success"] = QST2_1_success
+    tl["t_full"]["QST2_2_success"] = QST2_2_success
 
     # ARC 全体の成功：QST1, QST2 両方成功
-    ARC_success = pre_QST and QST1_success and QST2_success
+    ARC_success = pre1_QST and pre2_QST and QST1_1_success and QST1_2_success and QST2_1_success and QST2_2_success
     tl["t_full"]["ARC_success"] = ARC_success
 
     return tl,ARC_success
-"""
+
 def main():
     """
     This python script calculates the minimum rate of entanglement distribution between two QRs connected by N ARC chains, each chain composed of
@@ -574,13 +571,13 @@ def main():
         exv1=9091*p_arc_gen*(eta_QR)**2
         exv2=9091*(p_arc_gen*(eta_QR)**2)**2
         print(f'p(N=1,n=1)={p:.6f},error(N=1,n=1)={error:.6f},expected value(N=1,n=1)={exv1:.6f},expected value(N=2,n=1)={exv2:.6f}')
-        """
+        
         print("===Monte Carlo check for n=1,N=2===")
         rng=np.random.default_rng(0)
         
         successes=0
         tAFC=param_dict["t_AFC"]
-        n_attempts=10000
+        n_attempts=9091
         N=5000
         for j in tqdm(range(N)):
             for i in range(n_attempts):#1s=100μs(t_AFC)*10000,論文では取りあえず10000回
@@ -590,7 +587,7 @@ def main():
         p=successes/N
         error=np.sqrt(p*(1.0-p)/N) 
         print(f'p(N=1,n=1)={p:.6f},error(N=1,n=1)={error:.6f}')
-        """
+        
         #===================================================================#
         #n_attemps=round(np.log(1-edr_11*tauARC_11)/np.log(1-qr_entanglement_distribution_prob_11))
         #n_attemps=round(np.log(0.05)/np.log(1-qr_entanglement_distribution_prob_11))
